@@ -20,40 +20,94 @@ public class GenEntrenamiento {
 	public static final int ROTATE_RIGHT = -1;
 	
 	public static void main(String args[]) {
-		System.out.println("Generacion de imagenes ha comenzado");
+		System.out.println("Generacion de imagenes a ROTAR ha comenzado");
+		int size = args.length;
+		String pathBase = args[0];
+		List<String> nombreDirectorios = new ArrayList<>();
 		
-		String pathImagenes = args[0];
-		
-		Path pathDeImagenes = Paths.get(pathImagenes);
-		
+		Path pathDeImagenes = Paths.get(pathBase);
 		try(Stream<Path> subPaths = Files.walk(pathDeImagenes, 1)){
-			
-		//	subPaths.filter(Files::isRegularFile).forEach(System.out::println);
+			nombreDirectorios = subPaths.filter(Files::isDirectory)
+				.map(Path::toFile)
+				.map(File::getName)
+				.collect(Collectors.toList());
+			nombreDirectorios.remove(0);
+		} catch (IOException e) {
+			System.out.println("ERROR: "+e.getMessage());
+			e.printStackTrace();
+		}
+		
+		int totalImagenes = obtenerTotalImagenes(pathBase, nombreDirectorios);
+		int imagenesRotadas = 0;
+		for(String directorio : nombreDirectorios) {
+			String fuente = pathBase + "/"+directorio;
+			System.out.println("Comienza a rotar las imagenes del path: "+ directorio);
+			imagenesRotadas = rotarImagenesDePath(fuente, totalImagenes, imagenesRotadas);
+			System.out.println("FINALIZADO PARA EL DIRECTORIO DE IMAGENES "+ directorio);
+			System.out.println("------------------------------------------------------------------------------------------------");
+		}
+		
+		System.out.println("El sistema ha finalizado de procesar todas las imagenes");
+	}
+	
+	private static int obtenerTotalImagenes(String base, List<String> directorios) {
+		int cant = 0;
+		for(String directorio : directorios) {
+			Path pathDeImagenes = Paths.get(base+"/"+directorio);
+			try(Stream<Path> subPaths = Files.walk(pathDeImagenes, 1)){
+					List<File> imagenes = subPaths.filter(Files::isRegularFile)
+							.map(Path::toFile)
+							.collect(Collectors.toList());
+					cant += imagenes.size();
+			} catch (IOException e) {
+				System.out.println("ERROR: "+e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		return cant;
+	}
+	
+	private static void mostrarProgreso(Float porcentaje) {
+		int cantProgreso = porcentaje.intValue();
+		String barraDeProgreso = "[----------------------------------------------------------------------------------------------------]";
+		String progreso = "#";
+		for(int i = 0; i<cantProgreso; i++) {
+			barraDeProgreso = barraDeProgreso.replaceFirst("-", progreso);
+		}
+		System.out.println(barraDeProgreso);
+	}
+	
+	private static int rotarImagenesDePath(String pathImagenes, int totalImagenes, int imagenesRotadas) {
+		Path pathDeImagenes = Paths.get(pathImagenes);
+		try(Stream<Path> subPaths = Files.walk(pathDeImagenes, 1)) {
 			List<File> imagenes = subPaths.filter(Files::isRegularFile)
 					.map(Path::toFile)
 					.collect(Collectors.toList());
-			int totalImagenes = imagenes.size();
-			int index = 1;
-			float porcentaje = (float) index/totalImagenes * 100;
+			int totalImagenesDeFuente = imagenes.size();
+			int index = 1 + imagenesRotadas;
+			Float porcentaje = (float) index/totalImagenes * 100;
 			for(File imagen : imagenes) {
-				porcentaje = (float) index/totalImagenes  * 100;
-				System.out.println(index+" de "+totalImagenes + " | "+porcentaje+"%");
-				System.out.println("Archivo: "+imagen.getName());
-				rotarImagen3Veces(imagen, pathImagenes);
-				index++;
+				if(imagen.getName().contains("jpg") || imagen.getName().contains("png")) {
+					porcentaje = (float) index/totalImagenes  * 100;
+					System.out.println("Archivo: "+imagen.getName());
+					rotarImagen3Veces(imagen, pathImagenes);
+					System.out.println(index+" de "+totalImagenes + " | "+porcentaje+"%");
+					mostrarProgreso(porcentaje);
+					index++;
+				} else {
+					System.out.println("Archivo: "+imagen.getName() + " NO ES UNA IMAGEN COMPATIBLE");
+				}
 			}
-			System.out.println("FINALIZADO");
+			imagenesRotadas += totalImagenesDeFuente;
+			System.out.println("LISTO!!!!");
+			
 		}
-		/*s
-		 * Del path IMAGENES obtiene las imagenes las cuales va a rotar 3 veces
-		 * 3 de estas imagenes serán usadas para entrenamiento y la imagen 
-		 * original será utilizada para validación
-		 */ 
 		catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("ERROR: "+e.getMessage());
 			e.printStackTrace();
 		}
+		return imagenesRotadas;
 	}
 	
 	public static void rotarImagen3Veces(File input, String basePath) throws IOException {
@@ -121,3 +175,4 @@ public class GenEntrenamiento {
 		ImageIO.write(rotar, format, output);
 	}
 }
+
