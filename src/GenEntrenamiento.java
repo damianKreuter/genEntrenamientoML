@@ -87,16 +87,17 @@ public class GenEntrenamiento {
 			int index = 1 + imagenesRotadas;
 			Float porcentaje = (float) index/totalImagenes * 100;
 			for(File imagen : imagenes) {
+				porcentaje = (float) index/totalImagenes  * 100;
+				System.out.println("Archivo: "+imagen.getName());
 				if(imagen.getName().contains("jpg") || imagen.getName().contains("png")) {
-					porcentaje = (float) index/totalImagenes  * 100;
-					System.out.println("Archivo: "+imagen.getName());
 					rotarImagen3Veces(imagen, pathImagenes);
-					System.out.println(index+" de "+totalImagenes + " | "+porcentaje+"%");
-					mostrarProgreso(porcentaje);
 					index++;
 				} else {
 					System.out.println("Archivo: "+imagen.getName() + " NO ES UNA IMAGEN COMPATIBLE");
 				}
+				System.out.println(index+" de "+ totalImagenes + " | "+porcentaje+"%");
+				mostrarProgreso(porcentaje);
+				imagen.deleteOnExit();
 			}
 			imagenesRotadas += totalImagenesDeFuente;
 			System.out.println("LISTO!!!!");
@@ -111,23 +112,69 @@ public class GenEntrenamiento {
 	}
 	
 	public static void rotarImagen3Veces(File input, String basePath) throws IOException {
-		String directoryName = basePath.concat("/Entrenamiento");
+		String directoryEntrenamientoName = basePath.concat("/Entrenamiento");
+		String directoryValidacionName = basePath.concat("/Validacion");
 
-	    File directory = new File(directoryName);
-	    if (!directory.exists()){
-	        directory.mkdir();
-	        // If you require it to make the entire directory path including parents,
-	        // use directory.mkdirs(); here instead.
+	    File directoryEntrenamiento = new File(directoryEntrenamientoName);
+	    File directoryValidacion = new File(directoryValidacionName);
+	    if (!directoryEntrenamiento.exists()){
+	        directoryEntrenamiento.mkdir();
 	    }
-		
+	    if (!directoryValidacion.exists()){
+	    	directoryValidacion.mkdir();
+	    }
 		String path = input.getAbsolutePath() + "/entrenamiento";
-		File outputL = new File(directoryName + "/" + input.getName().substring(0, input.getName().length()-4) +"IZQ.jpg");
-		File outputD = new File(directoryName + "/" + input.getName().substring(0, input.getName().length()-4) +"DER.jpg");
-		File outputT = new File(directoryName + "/" + input.getName().substring(0, input.getName().length()-4) +"VOL.jpg");
+		File outputL = new File(directoryEntrenamientoName + "/" + input.getName().substring(0, input.getName().length()-4) +"_IZQ.jpg");
+		File outputD = new File(directoryEntrenamientoName + "/" + input.getName().substring(0, input.getName().length()-4) +"_DER.jpg");
+		File outputT = new File(directoryEntrenamientoName + "/" + input.getName().substring(0, input.getName().length()-4) +"_ROT.jpg");
+		File outputFlip = new File(directoryValidacion + "/" + input.getName().substring(0, input.getName().length()-4) +"_FLIP.jpg");
+		File outputFlipRotate = new File(directoryValidacion + "/" + input.getName().substring(0, input.getName().length()-4) +"_FLIP_ROT.jpg");
+		
 		rotacion90Grados(input, outputL, ROTATE_LEFT);
 		rotacion90Grados(input, outputD, ROTATE_RIGHT);
 		rotacion180Grados(input, outputT);
+		flip(input, outputFlip, 1);
+		flip(input, outputFlipRotate, 2);
+		guardarOriginal(input);
 	}
+	
+	public static void guardarOriginal(File output) throws IOException {
+		ImageInputStream streamImage = ImageIO.createImageInputStream(output);
+		Iterator<ImageReader> iterator = ImageIO.getImageReaders(streamImage);
+		ImageReader reader = iterator.next();
+		String format = reader.getFormatName();
+		BufferedImage image = ImageIO.read(streamImage);
+		int width = image.getWidth();
+		int height = image.getHeight();
+		BufferedImage rotar = new BufferedImage(height, width, image.getType());
+		ImageIO.write(rotar, format, output);
+	}
+	
+	public static void flip(File input, File output, int direction) throws IOException {
+		ImageInputStream streamImage = ImageIO.createImageInputStream(input);
+		Iterator<ImageReader> iterator = ImageIO.getImageReaders(streamImage);
+		ImageReader reader = iterator.next();
+		String format = reader.getFormatName();
+		
+		BufferedImage image = ImageIO.read(streamImage);
+		int width = image.getWidth();
+		int height = image.getHeight();
+		
+		BufferedImage rotar = new BufferedImage(height, width, image.getType());
+		
+		for(int y = 0; y < height; y++) {
+			for(int x = 0; x < width; x++) {
+				switch(direction) {
+				case 1:
+					rotar.setRGB((width-1) - x, y, image.getRGB(x, y));
+					break;
+				case 2:
+					rotar.setRGB(x, (height-1) - y, image.getRGB(x, y));
+				}	
+			}
+		}
+		ImageIO.write(rotar, format, output);
+}
 	
 	public static void rotacion90Grados(File input, File output, int direction) throws IOException {
 			ImageInputStream streamImage = ImageIO.createImageInputStream(input);
@@ -139,20 +186,20 @@ public class GenEntrenamiento {
 			int width = image.getWidth();
 			int height = image.getHeight();
 			
-			BufferedImage rotar = new BufferedImage(height, width, image.getType());
+			BufferedImage imagen = new BufferedImage(height, width, image.getType());
 			
 			for(int y = 0; y < height; y++) {
 				for(int x = 0; x < width; x++) {
 					switch(direction) {
 					case ROTATE_LEFT:
-						rotar.setRGB(y, (width-1) - x, image.getRGB(x, y));
+						imagen.setRGB(y, (width-1) - x, image.getRGB(x, y));
 						break;
 					case ROTATE_RIGHT:
-						rotar.setRGB((height-1) - y, x, image.getRGB(x, y));
+						imagen.setRGB((height-1) - y, x, image.getRGB(x, y));
 					}
 				}
 			}
-			ImageIO.write(rotar, format, output);
+			ImageIO.write(imagen, format, output);
 	}
 	
 	public static void rotacion180Grados(File input, File output) throws IOException {
@@ -165,14 +212,14 @@ public class GenEntrenamiento {
 		int width = image.getWidth();
 		int height = image.getHeight();
 			
-		BufferedImage rotar = new BufferedImage(width, height, image.getType());
+		BufferedImage imagen = new BufferedImage(width, height, image.getType());
 			
 		for(int y = 0; y< height; y++) {
 			for(int x = 0; x < width; x++) {
-				rotar.setRGB((width-1) - x, (height-1) - y, image.getRGB(x, y));
+				imagen.setRGB((width-1) - x, (height-1) - y, image.getRGB(x, y));
 			}
 		}
-		ImageIO.write(rotar, format, output);
+		ImageIO.write(imagen, format, output);
 	}
 }
 
