@@ -124,18 +124,20 @@ public class GenEntrenamiento {
 	    	directoryValidacion.mkdir();
 	    }
 		String path = input.getAbsolutePath() + "/entrenamiento";
+		File originalOutput = new File(directoryValidacion + "/" + input.getName().substring(0, input.getName().length()-4) +".jpg");
+	
 		File outputL = new File(directoryEntrenamientoName + "/" + input.getName().substring(0, input.getName().length()-4) +"_IZQ.jpg");
 		File outputD = new File(directoryEntrenamientoName + "/" + input.getName().substring(0, input.getName().length()-4) +"_DER.jpg");
 		File outputT = new File(directoryEntrenamientoName + "/" + input.getName().substring(0, input.getName().length()-4) +"_ROT.jpg");
-		File outputFlip = new File(directoryValidacion + "/" + input.getName().substring(0, input.getName().length()-4) +"_FLIP.jpg");
-		File outputFlipRotate = new File(directoryValidacion + "/" + input.getName().substring(0, input.getName().length()-4) +"_FLIP_ROT.jpg");
+		File outputFlip = new File(directoryEntrenamientoName + "/" + input.getName().substring(0, input.getName().length()-4) +"_FLIP.jpg");
+		File outputFlipRotate = new File(directoryEntrenamientoName + "/" + input.getName().substring(0, input.getName().length()-4) +"_FLIP_ROT.jpg");
 		
 		rotacion90Grados(input, outputL, ROTATE_LEFT);
 		rotacion90Grados(input, outputD, ROTATE_RIGHT);
 		rotacion180Grados(input, outputT);
 		flip(input, outputFlip, 1);
 		flip(input, outputFlipRotate, 2);
-		guardarOriginal(input);
+		guardarOriginal(originalOutput);
 	}
 	
 	public static void guardarOriginal(File output) throws IOException {
