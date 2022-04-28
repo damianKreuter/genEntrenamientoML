@@ -90,7 +90,7 @@ public class GenEntrenamiento {
 				porcentaje = (float) index/totalImagenes  * 100;
 				System.out.println("Archivo: "+imagen.getName());
 				if(imagen.getName().contains("jpg") || imagen.getName().contains("png")) {
-					rotarImagen3Veces(imagen, pathImagenes);
+					rotarImagenVariasVeces(imagen, pathImagenes);
 					index++;
 				} else {
 					System.out.println("Archivo: "+imagen.getName() + " NO ES UNA IMAGEN COMPATIBLE");
@@ -111,7 +111,7 @@ public class GenEntrenamiento {
 		return imagenesRotadas;
 	}
 	
-	public static void rotarImagen3Veces(File input, String basePath) throws IOException {
+	public static void rotarImagenVariasVeces(File input, String basePath) throws IOException {
 		String directoryEntrenamientoName = basePath.concat("/Entrenamiento");
 		String directoryValidacionName = basePath.concat("/Validacion");
 
@@ -124,13 +124,13 @@ public class GenEntrenamiento {
 	    	directoryValidacion.mkdir();
 	    }
 		String path = input.getAbsolutePath() + "/entrenamiento";
+		
 		File originalOutput = new File(directoryValidacion + "/" + input.getName().substring(0, input.getName().length()-4) +".jpg");
-	
 		File outputL = new File(directoryEntrenamientoName + "/" + input.getName().substring(0, input.getName().length()-4) +"_IZQ.jpg");
 		File outputD = new File(directoryEntrenamientoName + "/" + input.getName().substring(0, input.getName().length()-4) +"_DER.jpg");
 		File outputT = new File(directoryEntrenamientoName + "/" + input.getName().substring(0, input.getName().length()-4) +"_ROT.jpg");
 		File outputFlip = new File(directoryEntrenamientoName + "/" + input.getName().substring(0, input.getName().length()-4) +"_FLIP.jpg");
-		File outputFlipRotate = new File(directoryEntrenamientoName + "/" + input.getName().substring(0, input.getName().length()-4) +"_FLIP_ROT.jpg");
+		File outputFlipRotate = new File(directoryValidacion + "/" + input.getName().substring(0, input.getName().length()-4) +"_FLIP_ROT.jpg");
 		
 		rotacion90Grados(input, outputL, ROTATE_LEFT);
 		rotacion90Grados(input, outputD, ROTATE_RIGHT);
