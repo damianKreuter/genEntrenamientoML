@@ -19,6 +19,9 @@ public class GenEntrenamiento {
 	public static final int ROTATE_LEFT = 1;
 	public static final int ROTATE_RIGHT = -1;
 	
+	public static final int FLIP_HORIZONTAL = 1;
+	public static final int FLIP_VERTICAL = 2;
+	
 	public static void main(String args[]) {
 		System.out.println("Generacion de imagenes a ROTAR ha comenzado");
 		int size = args.length;
@@ -135,8 +138,8 @@ public class GenEntrenamiento {
 		rotacion90Grados(input, outputL, ROTATE_LEFT);
 		rotacion90Grados(input, outputD, ROTATE_RIGHT);
 		rotacion180Grados(input, outputT);
-		flip(input, outputFlip, 1);
-		flip(input, outputFlipRotate, 2);
+		flip(input, outputFlip, FLIP_HORIZONTAL);
+		flip(input, outputFlipRotate, FLIP_VERTICAL);
 		guardarOriginal(originalOutput);
 	}
 	
@@ -167,16 +170,16 @@ public class GenEntrenamiento {
 		for(int y = 0; y < height; y++) {
 			for(int x = 0; x < width; x++) {
 				switch(direction) {
-				case 1:
+				case FLIP_HORIZONTAL:
 					rotar.setRGB((width-1) - x, y, image.getRGB(x, y));
 					break;
-				case 2:
+				case FLIP_VERTICAL:
 					rotar.setRGB(x, (height-1) - y, image.getRGB(x, y));
 				}	
 			}
 		}
 		ImageIO.write(rotar, format, output);
-}
+	}
 	
 	public static void rotacion90Grados(File input, File output, int direction) throws IOException {
 			ImageInputStream streamImage = ImageIO.createImageInputStream(input);
