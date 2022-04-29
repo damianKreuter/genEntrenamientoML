@@ -104,10 +104,8 @@ public class GenEntrenamiento {
 			}
 			imagenesRotadas += totalImagenesDeFuente;
 			System.out.println("LISTO!!!!");
-			
 		}
 		catch (IOException e) {
-			// TODO Auto-generated catch block
 			System.out.println("ERROR: "+e.getMessage());
 			e.printStackTrace();
 		}
@@ -140,11 +138,15 @@ public class GenEntrenamiento {
 		rotacion180Grados(input, outputT);
 		flip(input, outputFlip, FLIP_HORIZONTAL);
 		flip(input, outputFlipRotate, FLIP_VERTICAL);
-		guardarOriginal(originalOutput);
+		guardarOriginal(input, originalOutput);
 	}
 	
-	public static void guardarOriginal(File output) throws IOException {
-		ImageInputStream streamImage = ImageIO.createImageInputStream(output);
+	public static void guardarOriginal(File input, File output) throws IOException {
+		
+		Files.copy(input.toPath(), output.toPath());
+		
+	/*	
+		ImageInputStream streamImage = ImageIO.createImageInputStream(input);
 		Iterator<ImageReader> iterator = ImageIO.getImageReaders(streamImage);
 		ImageReader reader = iterator.next();
 		String format = reader.getFormatName();
@@ -153,6 +155,7 @@ public class GenEntrenamiento {
 		int height = image.getHeight();
 		BufferedImage rotar = new BufferedImage(height, width, image.getType());
 		ImageIO.write(rotar, format, output);
+		*/
 	}
 	
 	public static void flip(File input, File output, int direction) throws IOException {
@@ -165,7 +168,7 @@ public class GenEntrenamiento {
 		int width = image.getWidth();
 		int height = image.getHeight();
 		
-		BufferedImage rotar = new BufferedImage(height, width, image.getType());
+		BufferedImage rotar = new BufferedImage(width, height, image.getType());
 		
 		for(int y = 0; y < height; y++) {
 			for(int x = 0; x < width; x++) {
@@ -175,6 +178,7 @@ public class GenEntrenamiento {
 					break;
 				case FLIP_VERTICAL:
 					rotar.setRGB(x, (height-1) - y, image.getRGB(x, y));
+					break;
 				}	
 			}
 		}
