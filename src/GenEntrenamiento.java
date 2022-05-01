@@ -92,7 +92,8 @@ public class GenEntrenamiento {
 			for(File imagen : imagenes) {
 				porcentaje = (float) index/totalImagenes  * 100;
 				System.out.println("Archivo: "+imagen.getName());
-				if(imagen.getName().contains("jpg") || imagen.getName().contains("png")) {
+				if(imagen.getName().contains("jpg") || imagen.getName().contains("png")
+						|| imagen.getName().contains("jpeg")) {
 					rotarImagenVariasVeces(imagen, pathImagenes);
 					index++;
 				} else {
@@ -142,20 +143,7 @@ public class GenEntrenamiento {
 	}
 	
 	public static void guardarOriginal(File input, File output) throws IOException {
-		
 		Files.copy(input.toPath(), output.toPath());
-		
-	/*	
-		ImageInputStream streamImage = ImageIO.createImageInputStream(input);
-		Iterator<ImageReader> iterator = ImageIO.getImageReaders(streamImage);
-		ImageReader reader = iterator.next();
-		String format = reader.getFormatName();
-		BufferedImage image = ImageIO.read(streamImage);
-		int width = image.getWidth();
-		int height = image.getHeight();
-		BufferedImage rotar = new BufferedImage(height, width, image.getType());
-		ImageIO.write(rotar, format, output);
-		*/
 	}
 	
 	public static void flip(File input, File output, int direction) throws IOException {
